@@ -51,9 +51,10 @@ let update state scoringPlayer =
   match state with
   | Normal (a,b) -> 
     match a, b, scoringPlayer with
+    | Forty, Forty, _ -> failwith "oh no!"
     | Forty, _, Player1 -> Winner Player1
-    | Forty, Thirty, Player2 -> Deuce
     | _, Forty, Player2 -> Winner Player2
+    | Forty, Thirty, Player2 -> Deuce
     | Thirty, Forty, Player1 -> Deuce
     | _ -> 
       incrementPlayerScore a b scoringPlayer 
