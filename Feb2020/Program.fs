@@ -69,4 +69,7 @@ let update state scoringPlayer =
   | Winner _ -> state
 
 
+[Player1; Player1; Player2; Player2; Player1; Player2; Player1; Player2; Player2; Player1; Player1; Player1]
+|> List.scan update init
+|> printfn "%A"
 
