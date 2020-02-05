@@ -17,3 +17,55 @@ The scoring system is rather simple:
 
 *)
 
+type Player = 
+  | Player1
+  | Player2 
+
+type Score =
+  | Love
+  | Fifteen
+  | Thirty
+  | Forty
+
+type GameState =
+  | Normal of Score*Score
+  | Deuce
+  | Advantage of Player
+  | Winner of Player
+
+
+let init = Normal (Love, Love)
+let incrementScore score =
+  match score with
+  | Love -> Fifteen
+  | Fifteen -> Thirty
+  | Thirty -> Forty
+  | Forty -> failwith "nope"
+
+let incrementPlayerScore score1 score2 player =
+  match player with
+  | Player1 -> incrementScore score1, score2
+  | Player2 -> score1, incrementScore score2
+
+let update state scoringPlayer =
+  match state with
+  | Normal (a,b) -> 
+    match a, b, scoringPlayer with
+    | Forty, _, Player1 -> Winner Player1
+    | Forty, Thirty, Player2 -> Deuce
+    | _, Forty, Player2 -> Winner Player2
+    | Thirty, Forty, Player1 -> Deuce
+    | _ -> 
+      incrementPlayerScore a b scoringPlayer 
+      |> Normal
+  | Deuce -> 
+    Advantage scoringPlayer
+  | Advantage player -> 
+    if player = scoringPlayer then
+      Winner scoringPlayer
+    else
+      Deuce
+  | Winner _ -> state
+
+
+
