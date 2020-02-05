@@ -25,10 +25,10 @@ type Score =
   | Love
   | Fifteen
   | Thirty
-  | Forty
 
 type GameState =
   | Normal of Score*Score
+  | Forty of Player*Score
   | Deuce
   | Advantage of Player
   | Winner of Player
@@ -39,8 +39,7 @@ let incrementScore score =
   match score with
   | Love -> Fifteen
   | Fifteen -> Thirty
-  | Thirty -> Forty
-  | Forty -> failwith "nope"
+  | Thirty -> failwith "still no"
 
 let incrementPlayerScore score1 score2 player =
   match player with
@@ -51,14 +50,17 @@ let update state scoringPlayer =
   match state with
   | Normal (a,b) -> 
     match a, b, scoringPlayer with
-    | Forty, Forty, _ -> failwith "oh no!"
-    | Forty, _, Player1 -> Winner Player1
-    | _, Forty, Player2 -> Winner Player2
-    | Forty, Thirty, Player2 -> Deuce
-    | Thirty, Forty, Player1 -> Deuce
+    | Thirty, _, Player1 -> Forty (Player1,b)
+    | _, Thirty, Player2 -> Forty (Player2,a)
     | _ -> 
       incrementPlayerScore a b scoringPlayer 
       |> Normal
+  | Forty (thePlayerWithForty, otherScore) ->
+    match thePlayerWithForty, scoringPlayer, otherScore with
+    | Player1, Player1, _ -> Winner thePlayerWithForty
+    | Player2, Player2, _ -> Winner thePlayerWithForty
+    | _, _, Thirty -> Deuce
+    | _ -> Forty (thePlayerWithForty, incrementScore otherScore)
   | Deuce -> 
     Advantage scoringPlayer
   | Advantage player -> 
